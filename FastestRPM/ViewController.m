@@ -8,7 +8,12 @@
 
 #import "ViewController.h"
 
-@interface ViewController ()
+#define degreesToRadians(angleDegrees) (angleDegrees * M_PI / 180.0)
+
+@interface ViewController () {
+
+  CGPoint startLocation;
+}
 
 @end
 
@@ -16,12 +21,42 @@
 
 - (void)viewDidLoad {
   [super viewDidLoad];
-  // Do any additional setup after loading the view, typically from a nib.
+
+  CGAffineTransform rotate = CGAffineTransformMakeRotation(degreesToRadians(180));
+  self.rpmNeedle.transform = rotate;
+
+  UIPanGestureRecognizer *circulerGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
+
+  [self.view addGestureRecognizer:circulerGesture];
+
 }
 
 - (void)didReceiveMemoryWarning {
   [super didReceiveMemoryWarning];
-  // Dispose of any resources that can be recreated.
+  
+}
+
+- (IBAction)panGesture:(UIPanGestureRecognizer  *)sender {
+
+  CGPoint velocity = [sender velocityInView:self.view];
+  CGFloat absolueVelocity = sqrt(pow(velocity.x, 2) + pow(velocity.y, 2));
+
+//  NSLog(@"%f", absolueVelocity);
+
+  if (sender.state == UIGestureRecognizerStateBegan) {
+
+    startLocation = [sender locationInView:self.view];
+  } else if (sender.state == UIGestureRecognizerStateEnded) {
+
+    CGAffineTransform abbey = CGAffineTransformMakeRotation(degreesToRadians(180));
+    self.rpmNeedle.transform = abbey;
+
+  } else {
+
+    CGAffineTransform abbey = CGAffineTransformMakeRotation(degreesToRadians ((((absolueVelocity/3500) * 270) + 180)));
+    self.rpmNeedle.transform = abbey;
+  }
+
 }
 
 @end
